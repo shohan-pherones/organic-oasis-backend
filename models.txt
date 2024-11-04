@@ -1,0 +1,68 @@
+Here’s the list of models related to the **Organic Health and Wellness Store** e-commerce project in a simple list format:
+
+1. **User**
+   - Description: Represents a user of the platform.
+   - Attributes/Fields:
+     - `id` (String, unique)
+     - `username` (String)
+     - `name` (String)
+     - `email` (String, unique)
+     - `password` (String)
+     - `image` (String)
+     - `address` (String)
+     - `role` (String, e.g., 'User', 'Admin')
+     - `createdAt` (Date)
+     - `updatedAt` (Date)
+     - `orders` (Array of Object, reference to Order, one to many relation)
+     - `cart` (Object, reference to Cart, one to one relation)
+     - `reviews` (Array of Objects, reference to Review, one to many relation)
+
+2. **Product**
+   - Description: Represents a product available for purchase.
+   - Attributes/Fields:
+     - `id` (String, unique)
+     - `name` (String)
+     - `description` (String)
+     - `images` (Array of Strings)
+     - `price` (Number)
+     - `category` (String)
+     - `stock` (Number)
+     - `createdAt` (Date)
+     - `updatedAt` (Date)
+     - `orders` (Array of Objects, reference to Order, one to many relation)
+     - `carts` (Array of Objects, reference to Cart, one to many relation)
+     - `reviews` (Array of Objects, reference to Review, one to many relation)
+
+3. **Order**
+   - Description: Represents a customer order.
+   - Attributes/Fields:
+     - `id` (String, unique)
+     - `user` (Object, reference to User, one to one relation)
+     - `products` (Array of Objects, reference to Product, one to many relation)
+     - `totalAmount` (Number)
+     - `shippingAddress` (String)
+     - `status` (String, e.g., 'Pending', 'Shipped', 'Delivered')
+     - `createdAt` (Date)
+     - `updatedAt` (Date)
+
+4. **Cart**
+   - Description: Represents the user's shopping cart.
+   - Attributes/Fields:
+     - `id` (String, unique)
+     - `user` (Object, reference to User, one to one relation)
+     - `products` (Array of Objects, reference to Product, one to many relation)
+     - `createdAt` (Date)
+     - `updatedAt` (Date)
+
+5. **Review**
+   - Description: Represents customer reviews for products.
+   - Attributes/Fields:
+     - `id` (String, unique)
+     - `product` (Object, reference to Product, one to one relation)
+     - `user` (Object, reference to User, one to one relation)
+     - `rating` (Number, 1-5)
+     - `comment` (String)
+     - `createdAt` (Date)
+     - `updatedAt` (Date)
+
+This list format provides a clear overview of each model and its attributes.
