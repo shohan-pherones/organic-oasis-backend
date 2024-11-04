@@ -4,7 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import connectDB from "./config/db";
 import config from "./config/index";
-// import router from "./routes";
+import router from "./routes";
 
 class Server {
   private app: Application;
@@ -31,7 +31,7 @@ class Server {
   }
 
   private initializeRoutes() {
-    // this.app.use("/api/v1", router);
+    this.app.use("/api/v1", router);
     this.app.get("/api/v1/health", (req: Request, res: Response) => {
       res.status(200).json({ message: "Server is running healthy!" });
     });
