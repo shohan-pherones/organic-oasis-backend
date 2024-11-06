@@ -1,8 +1,13 @@
 import bcrypt from "bcrypt";
+import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
+import config from "../../config";
+import AppError from "../../errors/app.error";
+import { createToken, verifyToken } from "../../utils/jwt.util";
 import { IUser } from "./user.interface";
-import UserModel from "./user.model";
+import { default as UserModel, default as userModel } from "./user.model";
 
-const register = async (userData: IUser): Promise<IUser> => {
+const register = async (userData: IUser) => {
   const existingUser = await UserModel.findOne({ email: userData.email });
 
   if (existingUser) {
@@ -16,10 +21,29 @@ const register = async (userData: IUser): Promise<IUser> => {
     password: hashedPassword,
   });
 
-  return await user.save();
+  await user.save();
+
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
+
+  return { accessToken, refreshToken };
 };
 
-const login = async (email: string, password: string): Promise<IUser> => {
+const login = async (email: string, password: string) => {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
@@ -32,10 +56,54 @@ const login = async (email: string, password: string): Promise<IUser> => {
     throw new Error("Incorrect password");
   }
 
-  return user;
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.jwt_refresh_secret as string,
+    config.jwt_refresh_expires_in as string
+  );
+
+  return { accessToken, refreshToken };
+};
+
+const refreshToken = async (token: string) => {
+  const decoded = verifyToken(
+    token,
+    config.jwt_refresh_secret as string
+  ) as JwtPayload;
+
+  const user = await userModel.findOne(decoded.userId);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  const jwtPayload = {
+    userId: user.id,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  return { accessToken };
 };
 
 export const UserServices = {
   register,
   login,
+  refreshToken,
 };

@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
@@ -27,6 +28,7 @@ class Server {
     this.app.use(helmet());
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(cookieParser());
     this.app.use(morgan("combined"));
   }
 
