@@ -9,29 +9,33 @@ import { verifyToken } from "../utils/jwt.util";
 
 const auth = (...roles: TUserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    try {
+      const token = req.headers.authorization;
 
-    if (!token) {
-      throw new AppError(StatusCodes.UNAUTHORIZED, "You are not authorized");
+      if (!token) {
+        throw new AppError(StatusCodes.UNAUTHORIZED, "You are not authorized");
+      }
+
+      const { userId, role } = verifyToken(
+        token,
+        config.jwt_access_secret as string
+      ) as JwtPayload;
+
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+      }
+
+      if (roles && !roles.includes(role)) {
+        throw new AppError(StatusCodes.UNAUTHORIZED, "You are not authorized");
+      }
+
+      req.user = { userId, role } as JwtPayload;
+      next();
+    } catch (error) {
+      next(error);
     }
-
-    const { userId, role } = verifyToken(
-      token,
-      config.jwt_access_secret as string
-    ) as JwtPayload;
-
-    const user = await UserModel.findById(userId);
-
-    if (!user) {
-      throw new AppError(StatusCodes.NOT_FOUND, "User not found");
-    }
-
-    if (roles && !roles.includes(role)) {
-      throw new AppError(StatusCodes.UNAUTHORIZED, "You are not authorized");
-    }
-
-    req.user = { userId, role } as JwtPayload;
-    next();
   };
 };
 

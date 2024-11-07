@@ -2,9 +2,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import helmet from "helmet";
+import { StatusCodes } from "http-status-codes";
 import morgan from "morgan";
 import connectDB from "./config/db";
 import config from "./config/index";
+import AppError from "./errors/app.error";
 import router from "./routes";
 
 class Server {
@@ -29,16 +31,18 @@ class Server {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(cookieParser());
-    this.app.use(morgan("combined"));
+    this.app.use(morgan("short"));
   }
 
   private initializeRoutes() {
     this.app.use("/api/v1", router);
     this.app.get("/api/v1/health", (req: Request, res: Response) => {
-      res.status(200).json({ message: "Server is running healthy!" });
+      res
+        .status(StatusCodes.OK)
+        .json({ message: "Server is running healthy!" });
     });
     this.app.use((req: Request, res: Response) => {
-      res.status(404).json({ message: "Route not found" });
+      res.status(StatusCodes.NOT_FOUND).json({ message: "Route not found" });
     });
   }
 
@@ -46,7 +50,14 @@ class Server {
     this.app.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
         console.error(err.stack);
-        res.status(500).json({ message: "Internal Server Error" });
+
+        if (err instanceof AppError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res
+            .status(StatusCodes.INTERNAL_SERVER_ERROR)
+            .json({ message: "Internal Server Error" });
+        }
       }
     );
 
