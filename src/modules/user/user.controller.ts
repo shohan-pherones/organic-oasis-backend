@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { UserServices } from "./user.service";
 import config from "../../config";
+import { UserServices } from "./user.service";
 
 const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -47,7 +47,7 @@ const refreshToken = async (req: Request, res: Response): Promise<void> => {
 
   res
     .status(StatusCodes.OK)
-    .json({ message: "Access token is retrieved successfully", accessToken });
+    .json({ message: "Access token retrieved successfully", accessToken });
 };
 
 export const UserControllers = {

@@ -5,7 +5,7 @@ import config from "../../config";
 import AppError from "../../errors/app.error";
 import { createToken, verifyToken } from "../../utils/jwt.util";
 import { IUser } from "./user.interface";
-import { default as UserModel, default as userModel } from "./user.model";
+import UserModel from "./user.model";
 
 const register = async (userData: IUser) => {
   const existingUser = await UserModel.findOne({ email: userData.email });
@@ -77,12 +77,12 @@ const login = async (email: string, password: string) => {
 };
 
 const refreshToken = async (token: string) => {
-  const decoded = verifyToken(
+  const { userId } = verifyToken(
     token,
     config.jwt_refresh_secret as string
   ) as JwtPayload;
 
-  const user = await userModel.findOne(decoded.userId);
+  const user = await UserModel.findById(userId);
 
   if (!user) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not found");
