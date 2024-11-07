@@ -9,7 +9,7 @@ export interface IUser {
   password: string;
   image: string;
   address: string;
-  role: "USER" | "ADMIN";
+  role: "user" | "admin";
   createdAt: Date;
   updatedAt: Date;
 }

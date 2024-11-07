@@ -1,6 +1,8 @@
 import express, { Router } from "express";
-import { UserControllers } from "./user.controller";
+import auth from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validation.middleware";
+import { USER_ROLE } from "./user.constant";
+import { UserControllers } from "./user.controller";
 import { UserValidations } from "./user.validation";
 
 const router: Router = express.Router();
@@ -20,5 +22,6 @@ router.post(
   validate(UserValidations.refreshTokenSchema),
   UserControllers.refreshToken
 );
+router.get("/all", auth(USER_ROLE.admin), UserControllers.getAllUsers);
 
 export default router;

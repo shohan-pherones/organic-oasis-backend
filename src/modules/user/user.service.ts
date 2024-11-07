@@ -102,8 +102,19 @@ const refreshToken = async (token: string) => {
   return { accessToken };
 };
 
+const getAllUsers = async (): Promise<IUser[]> => {
+  const users = await UserModel.find();
+
+  if (!users) {
+    throw new AppError(StatusCodes.NOT_FOUND, "No user found");
+  }
+
+  return users;
+};
+
 export const UserServices = {
   register,
   login,
   refreshToken,
+  getAllUsers,
 };
