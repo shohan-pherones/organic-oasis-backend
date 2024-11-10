@@ -1,81 +1,52 @@
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
-import helmet from "helmet";
-import { StatusCodes } from "http-status-codes";
-import morgan from "morgan";
-import connectDB from "./config/db";
-import config from "./config/index";
-import AppError from "./errors/app.error";
-import router from "./routes";
+import { Application } from "express";
+import http from "http";
+import { createApp } from "./app";
+import connectDB from "./app/config/db";
+import env from "./app/config/env";
 
 class Server {
   private app: Application;
-  private PORT: number | string;
+  private PORT: number;
+  private serverInstance: http.Server | null = null;
 
-  constructor() {
-    this.app = express();
-    this.PORT = config.port as string;
-    this.connectDatabase();
-    this.configureMiddleware();
-    this.initializeRoutes();
-    this.handleErrors();
+  constructor(port: number) {
+    this.app = createApp();
+    this.PORT = port;
   }
 
-  private connectDatabase() {
+  public static connectDatabaseOnce() {
     connectDB();
   }
 
-  private configureMiddleware() {
-    this.app.use(helmet());
-    this.app.use(cors());
-    this.app.use(express.json());
-    this.app.use(cookieParser());
-    this.app.use(morgan("short"));
-  }
-
-  private initializeRoutes() {
-    this.app.use("/api/v1", router);
-    this.app.get("/api/v1/health", (req: Request, res: Response) => {
-      res
-        .status(StatusCodes.OK)
-        .json({ message: "Server is running healthy!" });
-    });
-    this.app.use((req: Request, res: Response) => {
-      res.status(StatusCodes.NOT_FOUND).json({ message: "Route not found" });
-    });
-  }
-
-  private handleErrors() {
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        console.error(err.stack);
-
-        if (err instanceof AppError) {
-          res.status(err.statusCode).json({ message: err.message });
-        } else {
-          res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ message: "Internal Server Error" });
-        }
-      }
-    );
-
-    process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
-      console.error("Unhandled Rejection at:", promise, "reason:", reason);
-    });
-
-    process.on("uncaughtException", (error: Error) => {
-      console.error("Uncaught Exception:", error.message);
-    });
-  }
-
   public start() {
-    this.app.listen(this.PORT, () => {
+    this.serverInstance = this.app.listen(this.PORT, () => {
       console.log(`Server is running on http://localhost:${this.PORT}`);
     });
+
+    process.on("SIGINT", this.stop.bind(this));
+    process.on("SIGTERM", this.stop.bind(this));
+  }
+
+  public stop() {
+    if (this.serverInstance) {
+      this.serverInstance.close(() => {
+        console.log(`Server on port ${this.PORT} stopped gracefully.`);
+        process.exit(0);
+      });
+    } else {
+      console.error("Server instance not found.");
+    }
   }
 }
 
-const server = new Server();
-server.start();
+Server.connectDatabaseOnce();
+
+const servers: Server[] = [];
+const numberOfInstances = 1;
+
+for (let i = 0; i < numberOfInstances; i++) {
+  const port = parseInt(env.port as string) + i;
+  const server = new Server(port);
+  servers.push(server);
+  server.start();
+}

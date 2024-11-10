@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
-import { StatusCodes } from "http-status-codes";
+import { CONFLICT, StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
-import config from "../../config";
+import config from "../../config/env";
 import AppError from "../../errors/app.error";
 import { createToken, verifyToken } from "../../utils/jwt.util";
 import { IUser } from "./user.interface";
@@ -11,7 +11,10 @@ const register = async (userData: IUser) => {
   const existingUser = await UserModel.findOne({ email: userData.email });
 
   if (existingUser) {
-    throw new Error("User with this email already exists");
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      "User with this email already exists"
+    );
   }
 
   const hashedPassword = await bcrypt.hash(userData.password, 12);
@@ -47,13 +50,16 @@ const login = async (email: string, password: string) => {
   const user = await UserModel.findOne({ email });
 
   if (!user) {
-    throw new Error("User with this email does not exist");
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      "User with this email does not exist"
+    );
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    throw new Error("Incorrect password");
+    throw new AppError(StatusCodes.FORBIDDEN, "Incorrect password");
   }
 
   const jwtPayload = {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import config from "../../config";
+import config from "../../config/env";
 import { UserServices } from "./user.service";
 
 const register = async (req: Request, res: Response): Promise<void> => {
@@ -37,7 +37,7 @@ const login = async (req: Request, res: Response): Promise<void> => {
       .status(StatusCodes.OK)
       .json({ message: "User logged in successfully", accessToken });
   } catch (error: any) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ message: error.message });
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
   }
 };
 
