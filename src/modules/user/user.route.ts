@@ -23,5 +23,10 @@ router.post(
   UserControllers.refreshToken
 );
 router.get("/all", auth(USER_ROLE.admin), UserControllers.getAllUsers);
+router.get(
+  "/:userId",
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  UserControllers.getAnUser
+);
 
 export default router;

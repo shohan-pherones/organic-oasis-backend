@@ -112,9 +112,20 @@ const getAllUsers = async (): Promise<IUser[]> => {
   return users;
 };
 
+const getAnUser = async (userId: string): Promise<IUser> => {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  return user;
+};
+
 export const UserServices = {
   register,
   login,
   refreshToken,
   getAllUsers,
+  getAnUser,
 };
