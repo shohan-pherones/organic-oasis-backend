@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { CONFLICT, StatusCodes } from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import config from "../../config/env";
 import AppError from "../../errors/app.error";

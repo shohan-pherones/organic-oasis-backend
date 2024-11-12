@@ -36,7 +36,6 @@ const auth = (...roles: TUserRole[]) => {
       }
 
       if (roles && !roles.includes(role)) {
-        console.log(role);
         throw new AppError(StatusCodes.UNAUTHORIZED, "You are not authorized");
       }
 
