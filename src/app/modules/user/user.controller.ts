@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import config from "../../config/env";
 import { UserServices } from "./user.service";
+import AppError from "../../errors/app.error";
 
 const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -75,10 +76,40 @@ const getAnUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const updateAnUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const { userId: loggedInUserId } = req.user;
+
+    if (userId !== loggedInUserId) {
+      throw new AppError(
+        StatusCodes.UNAUTHORIZED,
+        "You are not authorized to update this user"
+      );
+    }
+
+    const { username, name, image, address } = req.body;
+
+    const updatedUser = await UserServices.updateAnUser(userId, {
+      username,
+      name,
+      image,
+      address,
+    });
+
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "User updated successfully", updatedUser });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+  }
+};
+
 export const UserControllers = {
   register,
   login,
   refreshToken,
   getAllUsers,
   getAnUser,
+  updateAnUser,
 };

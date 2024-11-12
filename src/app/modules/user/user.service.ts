@@ -128,10 +128,21 @@ const getAnUser = async (userId: string): Promise<IUser> => {
   return user;
 };
 
+const updateAnUser = async (userId: string, userData: Partial<IUser>) => {
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    userId,
+    { $set: userData },
+    { new: true }
+  );
+
+  return updatedUser;
+};
+
 export const UserServices = {
   register,
   login,
   refreshToken,
   getAllUsers,
   getAnUser,
+  updateAnUser,
 };

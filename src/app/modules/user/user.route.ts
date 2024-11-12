@@ -28,5 +28,11 @@ router.get(
   auth(USER_ROLE.user, USER_ROLE.admin),
   UserControllers.getAnUser
 );
+router.put(
+  "/:userId",
+  auth(USER_ROLE.user),
+  validate(UserValidations.updateUserSchema),
+  UserControllers.updateAnUser
+);
 
 export default router;
