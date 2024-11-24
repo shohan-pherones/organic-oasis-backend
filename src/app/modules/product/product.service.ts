@@ -41,6 +41,23 @@ const createProduct = async (productData: IProduct): Promise<IProduct> => {
   }
 };
 
+const getAllProducts = async (): Promise<IProduct[]> => {
+  const products = await ProductModel.find().populate("categories");
+  return products;
+};
+
+const getProduct = async (productId: string): Promise<IProduct> => {
+  const product = await ProductModel.findById(productId).populate("categories");
+
+  if (!product) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Product not found");
+  }
+
+  return product;
+};
+
 export const ProductServices = {
   createProduct,
+  getAllProducts,
+  getProduct,
 };

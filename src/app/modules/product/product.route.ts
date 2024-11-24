@@ -13,5 +13,7 @@ router.post(
   validate(ProductValidations.createProductSchema),
   ProductControllers.createProduct
 );
+router.get("/", ProductControllers.getAllProducts);
+router.get("/:productId", ProductControllers.getProduct);
 
 export default router;
