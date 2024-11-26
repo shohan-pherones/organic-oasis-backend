@@ -11,7 +11,7 @@ const createProduct = async (productData: IProduct): Promise<IProduct> => {
   try {
     session.startTransaction();
 
-    const { name, description, price, stock, categories, images } = productData;
+    const { name, description, price, stock, categories, image } = productData;
 
     const products = await ProductModel.find();
     const conflicted = products.filter((pr) => pr.name === name);
@@ -21,7 +21,7 @@ const createProduct = async (productData: IProduct): Promise<IProduct> => {
     }
 
     const product = await ProductModel.create(
-      [{ name, description, price, stock, categories, images }],
+      [{ name, description, price, stock, categories, image }],
       { session }
     );
 
