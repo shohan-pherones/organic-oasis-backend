@@ -6,16 +6,16 @@ import AppError from "../../errors/app.error";
 
 const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { accessToken, refreshToken } = await UserServices.register(req.body);
+    const { accessToken, refreshToken, user } = await UserServices.register(
+      req.body
+    );
 
-    res.cookie("refreshToken", refreshToken, {
-      secure: config.node_env === "production",
-      httpOnly: true,
+    res.status(StatusCodes.CREATED).json({
+      message: "User registered successfully",
+      accessToken,
+      refreshToken,
+      user,
     });
-
-    res
-      .status(StatusCodes.CREATED)
-      .json({ message: "User registered successfully", accessToken });
   } catch (error: any) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
   }
@@ -24,19 +24,17 @@ const register = async (req: Request, res: Response): Promise<void> => {
 const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const { accessToken, refreshToken } = await UserServices.login(
+    const { accessToken, refreshToken, user } = await UserServices.login(
       email,
       password
     );
 
-    res.cookie("refreshToken", refreshToken, {
-      secure: config.node_env === "production",
-      httpOnly: true,
+    res.status(StatusCodes.OK).json({
+      message: "User logged in successfully",
+      accessToken,
+      refreshToken,
+      user,
     });
-
-    res
-      .status(StatusCodes.OK)
-      .json({ message: "User logged in successfully", accessToken });
   } catch (error: any) {
     res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
   }

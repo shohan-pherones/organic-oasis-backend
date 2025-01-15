@@ -43,7 +43,7 @@ const register = async (userData: IUser) => {
     config.jwt_refresh_expires_in as string
   );
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, user };
 };
 
 const login = async (email: string, password: string) => {
@@ -79,7 +79,7 @@ const login = async (email: string, password: string) => {
     config.jwt_refresh_expires_in as string
   );
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, user };
 };
 
 const refreshToken = async (token: string) => {
